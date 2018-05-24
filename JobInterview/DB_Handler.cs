@@ -52,19 +52,18 @@ namespace JobInterview
                 CollumnsTypes.Add(RangeCellTypeChecker.GetCellType(xlRange.Cells[3, i]));
                 //Console.Write("  " + RangeCellTypeChecker.GetCellType(xlRange.Cells[2, i]));
             }
-
-            //we will create few copies of the insert string and send them together
-            for (int i = 2; i <= xlRange.Rows.Count; i++)
+            using (var conn = new Npgsql.NpgsqlConnection(connString))
             {
-                using (var conn = new Npgsql.NpgsqlConnection(connString))
-                {
-                    conn.Open();
+                conn.Open();
+                //we will create few copies of the insert string and send them together
+                for (int i = 2; i <= xlRange.Rows.Count; i++)
+                { 
                     List<string> rowValues = new List<string>();
                     for (int j = 1; j <= xlRange.Columns.Count; j++)
                         rowValues.Add(xlRange.Cells[i, j].Text);
                     SendStatmentExecuter(conn, colNames, rowValues, tableName, CollumnsTypes);
-                    conn.Close();
                 }
+                conn.Close();
             }
         }
 
